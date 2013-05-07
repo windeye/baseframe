@@ -7,9 +7,7 @@ class CreateSchema < ActiveRecord::Migration
     create_table :aspects do |t|
       t.string :name
       t.integer :user_id
-      #后添加的
       t.integer :oreder_id
-      #后来加的
       t.bollean :contacts_visible, :default => false, :null => false
       t.timestamps
     end
@@ -26,6 +24,22 @@ class CreateSchema < ActiveRecord::Migration
     add_index :aspect_memberships, :aspect_id
     add_index :aspect_memberships, [:aspect_id, :contact_id], :unique => true
     add_index :aspect_memberships, :contact_id
+
+    add_foreign_key :aspect_memberships, :aspects, :dependent => :delete
+    add_foreign_key :aspect_memberships, :contacts, :dependent => :delete
+
+    create_table :aspect_visibilities do |t| 
+      t.integer  :shareable_id,                       :null => false
+      t.integer  :aspect_id,                          :null => false
+      t.string   :shareable_type, :default => "Post", :null => false
+      t.timestamps
+    end 
+
+    add_index :aspect_visibilities, [:aspect_id] 
+    add_index :aspect_visibilities, [:shareable_id, :shareable_type, :aspect_id]
+    add_index :aspect_visibilities, [:shareable_id, :shareable_type]
+
+    add_foreign_key :aspect_visibilities, :aspects, :dependent => :delete
 
     create_table :blocks do |t|
       t.integer :user_id
@@ -51,6 +65,20 @@ class CreateSchema < ActiveRecord::Migration
     #add_index :comments, :post_id
     add_index :comments, [:commentable_id, :commentable_type]
 
+    create_table :contacts do |t|
+      t.integer :user_id
+      t.integer :person_id
+      #t.boolean :pending, :default => true
+      t.boolean :sharing, :default => false, :null => false
+      t.boolean :receiving, :default => false, :null => false
+      t.timestamps
+    end
+    #add_index :contacts, [:user_id, :pending]
+    #add_index :contacts, [:person_id, :pending]
+    add_index :contacts, :person_id
+    add_index :contacts, [:user_id, :person_id], :unique => true
+
+
     create_table :likes do |t| 
       t.boolean :positive, :default => true
       t.integer :target_id  #post_id
@@ -67,7 +95,6 @@ class CreateSchema < ActiveRecord::Migration
     add_index :likes, :target_id
     add_index :likes, [:target_id, :author_id, :target_type], :unique => true
     #add_foreign_key(:likes, :posts, :dependent => :delete)
-    add_foreign_key(:likes, :people, :column =>  :author_id, :dependent => :delete)
 
     create_table :mentions do |t| 
       t.integer :post_id, :null => false
@@ -83,21 +110,6 @@ class CreateSchema < ActiveRecord::Migration
     end 
     add_index :o_embed_caches, :url
 
-    create_table :contacts do |t|
-      t.integer :user_id
-      t.integer :person_id
-      #t.boolean :pending, :default => true
-      t.boolean :sharing, :default => false, :null => false
-      t.boolean :receiving, :default => false, :null => false
-      t.timestamps
-    end
-    #add_index :contacts, [:user_id, :pending]
-    #add_index :contacts, [:person_id, :pending]
-    add_index :contacts, :person_id
-    add_index :contacts, [:user_id, :person_id], :unique => true
-
-    add_foreign_key "contacts", "people", :name => "contacts_person_id_fk", :dependent => :delete
-    add_foreign_key :aspect_memberships, :aspects, :dependent => :delete
 
     #当有评论时会发通知，应该不只这一个触发条件,target_id就是post_id
     create_table :notifications do |t|
@@ -124,19 +136,7 @@ class CreateSchema < ActiveRecord::Migration
     add_index :notification_actors, [:notification_id, :person_id] , :unique => true
     add_index :notification_actors, :person_id  ## if i am not mistaken we don't need this one because we won't query person.notifications
 
-    create_table :people do |t|
-      t.string :guid
-      t.text :url
-      t.string :diaspora_handle
-      t.text :serialized_public_key
-      t.integer :owner_id
-      t.integer :fetch_status, :default => 0
-      t.boolean :closed_account, :default => false
-      t.timestamps
-    end
-    add_index :people, :guid, :unique => true
-    add_index :people, :owner_id, :unique => true
-    add_index :people, :diaspora_handle, :unique => true
+     add_foreign_key :notification_actors, :notifications, :dependent => :delete
 
     create_table :posts do |t|
       t.integer :author_id
@@ -181,33 +181,6 @@ class CreateSchema < ActiveRecord::Migration
     #index for reshare
     add_index :posts, [:author_id, :root_guid], :unique => true
 
-    create_table :share_visibilities do |t|
-      t.integer :shareable_id
-      t.boolean :hidden, :default => false, :null => false
-      t.integer :contact_id, :null => false
-      t.string   :shareable_type, :default => "Post", :null => false
-      t.timestamps
-    end
-    add_index :share_visibilities, :contact_id
-    add_index :share_visibilities, :shareable_id
-    add_index :share_visibilities, [:shareable_id, :shareable_type, :contact_id]
-    add_index :share_visibilities, [:shareable_id, :shareable_type, :hidden, :contact_id]
-
-    add_foreign_key :share_visibilities, :contacts, :dependent => :delete
-
-    create_table :aspect_visibilities do |t| 
-      t.integer  :shareable_id,                       :null => false
-      t.integer  :aspect_id,                          :null => false
-      t.string   :shareable_type, :default => "Post", :null => false
-      t.timestamps
-    end 
-
-    add_index :aspect_visibilities, [:aspect_id] 
-    add_index :aspect_visibilities, [:shareable_id, :shareable_type, :aspect_id]
-    add_index :aspect_visibilities, [:shareable_id, :shareable_type]
-
-    add_foreign_key :aspect_visibilities, :aspects, :dependent => :delete
-
     create_table :profiles do |t|
       t.string :diaspora_handle
       t.string :first_name, :limit => 127
@@ -230,10 +203,43 @@ class CreateSchema < ActiveRecord::Migration
     add_index :profiles, [:full_name, :searchable]
     add_index :profiles, :person_id, :unique => true
 
+    create_table :people do |t|
+      t.string :guid
+      t.text :url
+      t.string :diaspora_handle
+      t.text :serialized_public_key
+      t.integer :owner_id
+      t.integer :fetch_status, :default => 0
+      t.boolean :closed_account, :default => false
+      t.timestamps
+    end
+    add_index :people, :guid, :unique => true
+    add_index :people, :owner_id, :unique => true
+    add_index :people, :diaspora_handle, :unique => true
+
+    add_foreign_key :contacts, :people, :dependent => :delete
+    add_foreign_key :comments, :people, :column => :author_id, :dependent => :delete
+    add_foreign_key :likes, :people, :column => :author_id, :dependent => :delete
+    add_foreign_key :posts, :people, :column => :author_id, :dependent => :delete
+    add_foreign_key :profiles, :people, :dependent => :delete
+
+    create_table :share_visibilities do |t|
+      t.integer :shareable_id
+      t.boolean :hidden, :default => false, :null => false
+      t.integer :contact_id, :null => false
+      t.string   :shareable_type, :default => "Post", :null => false
+      t.timestamps
+    end
+    add_index :share_visibilities, :contact_id
+    add_index :share_visibilities, :shareable_id
+    add_index :share_visibilities, [:shareable_id, :shareable_type, :contact_id]
+    add_index :share_visibilities, [:shareable_id, :shareable_type, :hidden, :contact_id]
+
+    add_foreign_key :share_visibilities, :contacts, :dependent => :delete
+
     create_table :services do |t|
       t.string :type, :limit => 127
       t.integer :user_id
-      #t.string :provider
       t.string :uid, :limit => 127
       t.string :access_token
       t.string :access_secret
@@ -277,9 +283,7 @@ class CreateSchema < ActiveRecord::Migration
     add_index :users, :email
     add_index :users, :remember_token, :unique => true
 
-
-    add_foreign_key(:comments, :people, :column => :author_id, :dependent => :delete)
-    add_foreign_key(:posts, :people, :column => :author_id, :dependent => :delete)
+    add_foreign_key :services, :users, :dependent => :delete
 
     create_table :user_preferences do |t| 
       t.string :email_type
@@ -287,13 +291,6 @@ class CreateSchema < ActiveRecord::Migration
 
       t.timestamps                                                                                  
     end
-
-    create_table :pods do |t| 
-      t.string :host
-      t.boolean :ssl
-
-      t.timestamps
-    end 
 
     create_table :tags do |t| 
       t.string :name
@@ -328,6 +325,19 @@ class CreateSchema < ActiveRecord::Migration
     add_index :tag_followings, :user_id
     add_index :tag_followings, [:tag_id, :user_id], :unique => true      
   end
+
+  create_table :roles do |t|
+    t.integer :person_id
+    t.string :name
+    t.timestamps
+  end
+
+  create_table :pods do |t| 
+    t.string :host
+    t.boolean :ssl
+
+    t.timestamps
+  end 
 
   def self.down
     raise "irreversable migration!"
