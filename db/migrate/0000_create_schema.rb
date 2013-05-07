@@ -1,5 +1,9 @@
 class CreateSchema < ActiveRecord::Migration
   def self.up
+    create_table :account_deletions do |t|
+      t.string :diaspora_handle
+      t.integer :person_id
+    end
     create_table :aspects do |t|
       t.string :name
       t.integer :user_id
@@ -89,16 +93,11 @@ class CreateSchema < ActiveRecord::Migration
     end
     #add_index :contacts, [:user_id, :pending]
     #add_index :contacts, [:person_id, :pending]
+    add_index :contacts, :person_id
     add_index :contacts, [:user_id, :person_id], :unique => true
 
-    #create_table :invitations do |t|
-    #t.text :message
-    #t.integer :sender_id
-    #t.integer :recipient_id
-    #t.integer :aspect_id
-    #t.timestamps
-    #end
-    #add_index :invitations, :sender_id
+    add_foreign_key "contacts", "people", :name => "contacts_person_id_fk", :dependent => :delete
+    add_foreign_key :aspect_memberships, :aspects, :dependent => :delete
 
     #当有评论时会发通知，应该不只这一个触发条件,target_id就是post_id
     create_table :notifications do |t|
@@ -112,6 +111,8 @@ class CreateSchema < ActiveRecord::Migration
       #t.string :action
     end
     add_index :notifications, [:target_type, :target_id]
+    add_index :notifications, :target_id
+    add_index :notifications, :recipient_id
 
     #为啥要单独出来？不直接在notifications中添加个person_id
     create_table :notification_actors do |t| 
@@ -143,16 +144,15 @@ class CreateSchema < ActiveRecord::Migration
       t.string :diaspora_handle
       t.string :guid
       t.boolean :pending, :default => false
-      t.string :type
+      t.string :type, :limit => 40
       t.text :text
       t.integer :status_message_id
-      t.text :caption
       t.text :remote_photo_path
       t.string :remote_photo_name
       t.string :random_string
       t.string :processed_image #carrierwave's column
       t.string :unprocessed_image #carrierwave's column
-      t.integer :objectId
+      t.string :objectId
       t.string :root_guid, :limit => 30
       t.integer :likes_count, :default => 0
       t.integer :comments_count, :default => 0
@@ -170,13 +170,16 @@ class CreateSchema < ActiveRecord::Migration
     add_column(:posts, :provider_display_name, :string)
     add_column(:posts, :actor_url, :string)
 
-    add_index :posts, :type
+    #add_index :posts, :type
     add_index :posts, :author_id
-    add_index :posts, :guid
+    add_index :posts, :guid, :unique => true
     add_index :posts, :status_message_id
     add_index :posts, [:status_message_id, :pending]
     add_index :posts, :root_guid
     add_index :posts, [:id, :type, :created_at]
+    add_index :posts, [:type, :pending, :id]
+    #index for reshare
+    add_index :posts, [:author_id, :root_guid], :unique => true
 
     create_table :share_visibilities do |t|
       t.integer :shareable_id
@@ -265,14 +268,32 @@ class CreateSchema < ActiveRecord::Migration
       t.datetime :locked_at
       t.boolean :auto_follow_back, :default => false
       t.integer :auto_follow_back_aspect_id
+      t.string :authentication_token, :limit => 30
+      t.boolean  :show_community_spotlight_in_stream, :default => true,  :null => false 
       t.timestamps
     end
+    add_index(:users, :authentication_token, :unique => true)
     add_index :users, :username, :unique => true
     add_index :users, :email
-    add_index :users, :invitation_token
+    add_index :users, :remember_token, :unique => true
+
 
     add_foreign_key(:comments, :people, :column => :author_id, :dependent => :delete)
     add_foreign_key(:posts, :people, :column => :author_id, :dependent => :delete)
+
+    create_table :user_preferences do |t| 
+      t.string :email_type
+      t.integer :user_id
+
+      t.timestamps                                                                                  
+    end
+
+    create_table :pods do |t| 
+      t.string :host
+      t.boolean :ssl
+
+      t.timestamps
+    end 
 
     create_table :tags do |t| 
       t.string :name
