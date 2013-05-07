@@ -23,6 +23,11 @@ class CreateSchema < ActiveRecord::Migration
     add_index :aspect_memberships, [:aspect_id, :contact_id], :unique => true
     add_index :aspect_memberships, :contact_id
 
+    create_table :blocks do |t|
+      t.integer :user_id
+      t.integer :person_id
+    end
+
     create_table :comments do |t|
       t.text :text
       #就是post_id
@@ -42,6 +47,37 @@ class CreateSchema < ActiveRecord::Migration
     #add_index :comments, :post_id
     add_index :comments, [:commentable_id, :commentable_type]
 
+    create_table :likes do |t| 
+      t.boolean :positive, :default => true
+      t.integer :target_id  #post_id
+      t.integer :author_id
+      t.string :guid
+      t.text :author_signature
+      t.text :parent_author_signature
+      t.string :target_type, :limit => 60, :null => false
+      t.timestamps
+    end 
+
+    add_index :likes, :guid, :unique => true
+    add_index :likes, :author_id
+    add_index :likes, :target_id
+    add_index :likes, [:target_id, :author_id, :target_type], :unique => true
+    #add_foreign_key(:likes, :posts, :dependent => :delete)
+    add_foreign_key(:likes, :people, :column =>  :author_id, :dependent => :delete)
+
+    create_table :mentions do |t| 
+      t.integer :post_id, :null => false
+      t.integer :person_id, :null => false
+    end 
+    add_index :mentions, :post_id
+    add_index :mentions, :person_id
+    add_index :mentions, [:person_id, :post_id], :unique => true
+
+    create_table :o_embed_caches do |t| 
+      t.string :url, :limit => 1024, :null => false, :unique => true
+      t.text :data, :null => false
+    end 
+    add_index :o_embed_caches, :url
 
     create_table :contacts do |t|
       t.integer :user_id
@@ -142,18 +178,38 @@ class CreateSchema < ActiveRecord::Migration
     add_index :posts, :root_guid
     add_index :posts, [:id, :type, :created_at]
 
-    create_table :post_visibilities do |t|
-      t.integer :aspect_id
-      t.integer :post_id
+    create_table :share_visibilities do |t|
+      t.integer :shareable_id
+      t.boolean :hidden, :default => false, :null => false
+      t.integer :contact_id, :null => false
+      t.string   :shareable_type, :default => "Post", :null => false
       t.timestamps
     end
-    add_index :post_visibilities, :aspect_id
-    add_index :post_visibilities, :post_id
+    add_index :share_visibilities, :contact_id
+    add_index :share_visibilities, :shareable_id
+    add_index :share_visibilities, [:shareable_id, :shareable_type, :contact_id]
+    add_index :share_visibilities, [:shareable_id, :shareable_type, :hidden, :contact_id]
+
+    add_foreign_key :share_visibilities, :contacts, :dependent => :delete
+
+    create_table :aspect_visibilities do |t| 
+      t.integer  :shareable_id,                       :null => false
+      t.integer  :aspect_id,                          :null => false
+      t.string   :shareable_type, :default => "Post", :null => false
+      t.timestamps
+    end 
+
+    add_index :aspect_visibilities, [:aspect_id] 
+    add_index :aspect_visibilities, [:shareable_id, :shareable_type, :aspect_id]
+    add_index :aspect_visibilities, [:shareable_id, :shareable_type]
+
+    add_foreign_key :aspect_visibilities, :aspects, :dependent => :delete
 
     create_table :profiles do |t|
       t.string :diaspora_handle
       t.string :first_name, :limit => 127
       t.string :last_name, :limit => 127
+      t.string :full_name, :limit => 70
       t.string :image_url
       t.string :image_url_small
       t.string :image_url_medium
@@ -162,27 +218,19 @@ class CreateSchema < ActiveRecord::Migration
       t.text :bio
       t.boolean :searchable, :default => true
       t.integer :person_id
+      #这是什么的缩写
+      t.boolean :nsfw, :default => false
+      t.string :location
       t.timestamps
     end
-    add_index :profiles, [:first_name, :searchable]
-    add_index :profiles, [:last_name, :searchable]
-    add_index :profiles, [:first_name, :last_name, :searchable]
-    add_index :profiles, :person_id
-
-    create_table :requests do |t|
-      t.integer :sender_id
-      t.integer :recipient_id
-      t.integer :aspect_id
-      t.timestamps
-    end
-    add_index :requests, :sender_id
-    add_index :requests, :recipient_id
-    add_index :requests, [:sender_id, :recipient_id], :unique => true
+    add_index :profiles, :full_name
+    add_index :profiles, [:full_name, :searchable]
+    add_index :profiles, :person_id, :unique => true
 
     create_table :services do |t|
       t.string :type, :limit => 127
       t.integer :user_id
-      t.string :provider
+      #t.string :provider
       t.string :uid, :limit => 127
       t.string :access_token
       t.string :access_secret
@@ -190,6 +238,7 @@ class CreateSchema < ActiveRecord::Migration
       t.timestamps
     end
     add_index :services, :user_id
+    add_index :services, [:type, :uid]
 
     create_table :users do |t|
       t.string :username
@@ -202,9 +251,6 @@ class CreateSchema < ActiveRecord::Migration
       t.string :email,              :null => false, :default => ""
       t.string :encrypted_password, :null => false, :default => ""
 
-      t.string   :invitation_token, :limit => 60
-      t.datetime :invitation_sent_at
-
       t.string   :reset_password_token
       t.datetime :remember_created_at
       t.string   :remember_token
@@ -214,14 +260,52 @@ class CreateSchema < ActiveRecord::Migration
       t.string   :current_sign_in_ip
       t.string   :last_sign_in_ip
 
+      t.string :unconfirmed_email, :default => nil, :null => true
+      t.string :confirm_email_token, :limit => 30
+      t.datetime :locked_at
+      t.boolean :auto_follow_back, :default => false
+      t.integer :auto_follow_back_aspect_id
       t.timestamps
     end
     add_index :users, :username, :unique => true
-    add_index :users, :email, :unique => true
+    add_index :users, :email
     add_index :users, :invitation_token
 
     add_foreign_key(:comments, :people, :column => :author_id, :dependent => :delete)
     add_foreign_key(:posts, :people, :column => :author_id, :dependent => :delete)
+
+    create_table :tags do |t| 
+      t.string :name
+    end 
+
+    add_index :tags, :name, :unique => true
+
+    create_table :taggings do |t| 
+      t.references :tag
+      # You should make sure that the column created is
+      # long enough to store the required class names.
+      t.references :taggable, :polymorphic => {:limit => 127}
+      t.references :tagger, :polymorphic => {:limit => 127}
+
+      t.string :context, :limit => 127 
+      t.datetime :created_at
+    end 
+
+    add_index :taggings, :created_at
+    add_index :taggings, :tag_id
+    add_index :taggings, [:taggable_id, :taggable_type, :context]
+    add_index :taggings, [:taggable_id, :taggable_type, :tag_id], :unique => true
+
+    create_table :tag_followings do |t| 
+      t.integer :tag_id, :null => false
+      t.integer :user_id, :null => false
+
+      t.timestamps
+    end 
+
+    add_index :tag_followings, :tag_id
+    add_index :tag_followings, :user_id
+    add_index :tag_followings, [:tag_id, :user_id], :unique => true      
   end
 
   def self.down
