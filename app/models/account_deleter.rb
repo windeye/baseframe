@@ -1,17 +1,12 @@
-#   Copyright (c) 2010-2011, Diaspora Inc.  This file is
-#   licensed under the Affero General Public License version 3 or later.  See
-#   the COPYRIGHT file.
-
 class AccountDeleter
 
   # Things that are not removed from the database:
   # - Comments
   # - Likes
-  # - Messages
   # - NotificationActors
   #
   # Given that the User in question will be tombstoned, all of the
-  # above will come from an anonomized account (via the UI).
+  # above will come from an anonymized account (via the UI).
   # The deleted user will appear as "Deleted Account" in
   # the interface.
 
@@ -42,15 +37,15 @@ class AccountDeleter
 
   #user deletions
   def normal_ar_user_associates_to_delete
-    [:tag_followings, :invitations_to_me, :services, :aspects, :user_preferences, :notifications, :blocks]
+    [:tag_followings, :services, :aspects, :user_preferences, :notifications, :blocks]
   end
 
   def special_ar_user_associations
-    [:invitations_from_me, :person, :contacts, :auto_follow_back_aspect]
+    [:person, :contacts, :auto_follow_back_aspect]
   end
 
   def ignored_ar_user_associations
-    [:followed_tags, :invited_by, :contact_people, :aspect_memberships, :ignored_people]
+    [:followed_tags, :contact_people, :aspect_memberships, :ignored_people]
   end
 
   def delete_standard_user_associations
@@ -62,12 +57,6 @@ class AccountDeleter
   def delete_standard_person_associations
     normal_ar_person_associates_to_delete.each do |asso|
       self.person.send(asso).delete_all
-    end
-  end
-
-  def disassociate_invitations
-    user.invitations_from_me.each do |inv|
-      inv.convert_to_admin!
     end
   end
 
@@ -85,10 +74,6 @@ class AccountDeleter
     ShareVisibility.for_a_users_contacts(user).destroy_all
   end
 
-  def remove_conversation_visibilities
-    ConversationVisibility.where(:person_id => person.id).destroy_all
-  end
-
   def tombstone_person_and_profile
     self.person.lock_access!
     self.person.clear_profile!
@@ -103,7 +88,7 @@ class AccountDeleter
   end
   
   def normal_ar_person_associates_to_delete
-    [:posts, :photos, :mentions, :participations, :roles]
+    [:posts, :mentions, :roles]
   end
 
   def ignored_or_special_ar_person_associations

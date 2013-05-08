@@ -30,8 +30,6 @@ class Aspect < ActiveRecord::Base
     case shareable
       when Post
         self.posts << shareable
-      when Photo
-        self.photos << shareable
       else
         raise "Unknown shareable type '#{shareable.class.base_class.to_s}'"
     end

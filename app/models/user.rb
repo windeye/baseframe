@@ -40,12 +40,14 @@ class User < ActiveRecord::Base
            :first_name, :last_name, :gender, :participations, to: :person
   delegate :id, :guid, to: :person, prefix: true
 
-  has_many :invitations_from_me, :class_name => 'Invitation', :foreign_key => :sender_id
-  has_many :invitations_to_me, :class_name => 'Invitation', :foreign_key => :recipient_id
+  #has_many :invitations_from_me, :class_name => 'Invitation', :foreign_key => :sender_id
+  #has_many :invitations_to_me, :class_name => 'Invitation', :foreign_key => :recipient_id
+  
   has_many :aspects, :order => 'order_id ASC'
 
   belongs_to  :auto_follow_back_aspect, :class_name => 'Aspect'
-  belongs_to :invited_by, :class_name => 'User'
+  
+  #belongs_to :invited_by, :class_name => 'User'
 
   has_many :aspect_memberships, :through => :aspects
 
@@ -93,25 +95,6 @@ class User < ActiveRecord::Base
 
   def unread_message_count
     ConversationVisibility.sum(:unread, :conditions => "person_id = #{self.person.id}")
-  end
-
-  #@deprecated
-  def ugly_accept_invitation_code
-    begin
-      self.invitations_to_me.first.sender.invitation_code
-    rescue Exception => e
-      nil
-    end
-  end
-
-  def process_invite_acceptence(invite)
-    self.invited_by = invite.user
-    invite.use!
-  end
-
-
-  def invitation_code
-    InvitationCode.find_or_create_by_user_id(self.id)
   end
 
   def hidden_shareables
