@@ -1,0 +1,32 @@
+
+%html{:lang => zh}
+  %head
+    %meta{"http-equiv"=>"Content-Type", :content=>"text/html; charset=utf-8"}
+    %meta{:name => "description", :content => "Nobe-blog"}
+    %meta{:name => "author", :content => "Nobe-blog, Inc."}
+
+    
+    %link{:rel => 'shortcut icon', :href => "#{image_path('favicon.png')}"}
+
+    = stylesheet_link_tag "baseframe", media => 'all'
+
+    = javascript_include_tag "application"
+
+    %title
+      =page_title yield(:page_title)
+
+    = yield(:head)
+    = csrf_meta_tag
+
+  %body
+    =flash_messages
+
+    = yield :before_content
+
+    - if content_for?(:container_content)
+      .container
+        =  yield(:container_content)
+    - else
+      = content_for?(:content) ? yield(:content) : yield
+
+    = yield :after_content
