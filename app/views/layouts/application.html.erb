@@ -8,11 +8,13 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
+<% if flash[:notice] %>
+  <p class="notice"><%= flash[:notice] %></p>
+<% end %>
 
-<% if notice %>
-  <p class="notice"><%= notice %></p>
-<% if alert %>
-  <p class="alert"><%= alert %></p>
+<% if flash[:alert] %>
+  <p class="alert"><%= flash[:alert] %></p>
+<% end %>
 
 <%= yield %>
 
