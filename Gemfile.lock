@@ -1,5 +1,5 @@
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     actionmailer (3.2.13)
       actionpack (= 3.2.13)
@@ -50,6 +50,8 @@ GEM
       multi_json (~> 1.0)
     foreigner (1.4.0)
       activerecord (>= 3.0.0)
+    haml (4.0.2)
+      tilt
     hike (1.2.2)
     i18n (0.6.1)
     journey (1.0.4)
@@ -121,6 +123,7 @@ DEPENDENCIES
   coffee-rails (~> 3.2.1)
   devise
   foreigner (= 1.4.0)
+  haml
   jquery-rails
   mysql2
   rails (= 3.2.13)

@@ -25,9 +25,6 @@ class CreateSchema < ActiveRecord::Migration
     add_index :aspect_memberships, [:aspect_id, :contact_id], :unique => true
     add_index :aspect_memberships, :contact_id
 
-    add_foreign_key :aspect_memberships, :aspects, :dependent => :delete
-    add_foreign_key :aspect_memberships, :contacts, :dependent => :delete
-
     create_table :aspect_visibilities do |t| 
       t.integer  :shareable_id,                       :null => false
       t.integer  :aspect_id,                          :null => false
@@ -78,6 +75,9 @@ class CreateSchema < ActiveRecord::Migration
     add_index :contacts, :person_id
     add_index :contacts, [:user_id, :person_id], :unique => true
 
+
+    add_foreign_key :aspect_memberships, :aspects, :dependent => :delete
+    add_foreign_key :aspect_memberships, :contacts, :dependent => :delete
 
     create_table :likes do |t| 
       t.boolean :positive, :default => true
@@ -136,7 +136,7 @@ class CreateSchema < ActiveRecord::Migration
     add_index :notification_actors, [:notification_id, :person_id] , :unique => true
     add_index :notification_actors, :person_id  ## if i am not mistaken we don't need this one because we won't query person.notifications
 
-     add_foreign_key :notification_actors, :notifications, :dependent => :delete
+    add_foreign_key :notification_actors, :notifications, :dependent => :delete
 
     create_table :posts do |t|
       t.integer :author_id

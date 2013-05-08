@@ -143,7 +143,7 @@ ActiveRecord::Schema.define(:version => 20130507) do
     t.text   "data",                 :null => false
   end
 
-  add_index "o_embed_caches", ["url"], :name => "index_o_embed_caches_on_url", :length => {"url"=>333}
+  add_index "o_embed_caches", ["url"], :name => "index_o_embed_caches_on_url", :length => {"url"=>255}
 
   create_table "people", :force => true do |t|
     t.string   "guid"
@@ -339,5 +339,26 @@ ActiveRecord::Schema.define(:version => 20130507) do
   add_index "users", ["authentication_token"], :name => "index_users_on_authentication_token", :unique => true
   add_index "users", ["email"], :name => "index_users_on_email"
   add_index "users", ["username"], :name => "index_users_on_username", :unique => true
+
+  add_foreign_key "aspect_memberships", "aspects", :name => "aspect_memberships_aspect_id_fk", :dependent => :delete
+  add_foreign_key "aspect_memberships", "contacts", :name => "aspect_memberships_contact_id_fk", :dependent => :delete
+
+  add_foreign_key "aspect_visibilities", "aspects", :name => "aspect_visibilities_aspect_id_fk", :dependent => :delete
+
+  add_foreign_key "comments", "people", :name => "comments_author_id_fk", :column => "author_id", :dependent => :delete
+
+  add_foreign_key "contacts", "people", :name => "contacts_person_id_fk", :dependent => :delete
+
+  add_foreign_key "likes", "people", :name => "likes_author_id_fk", :column => "author_id", :dependent => :delete
+
+  add_foreign_key "notification_actors", "notifications", :name => "notification_actors_notification_id_fk", :dependent => :delete
+
+  add_foreign_key "posts", "people", :name => "posts_author_id_fk", :column => "author_id", :dependent => :delete
+
+  add_foreign_key "profiles", "people", :name => "profiles_person_id_fk", :dependent => :delete
+
+  add_foreign_key "services", "users", :name => "services_user_id_fk", :dependent => :delete
+
+  add_foreign_key "share_visibilities", "contacts", :name => "share_visibilities_contact_id_fk", :dependent => :delete
 
 end
