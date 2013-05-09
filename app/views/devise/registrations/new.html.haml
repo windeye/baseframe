@@ -1,0 +1,40 @@
+#registration
+  .container-fluid
+    .row-fluid
+      .row-fluid
+        .span12.center.login-header
+          %h3#welcome
+            欢迎加入Koala
+
+      .row-fluid
+        .well.span5.center.login-box
+          .alert.alert-info 请使用邮箱注册
+            = form_for(resource, :as => resource_name, :validate => true, :url => registration_path(resource_name), :html => {:class => "form-horizontal", :autocomplete => "off"}) do |f|
+              %fieldset
+                .input-prepend{:title => "email",:data-rel => "tooltip"}
+                  %span#add-on
+                    %i#icon-user
+                      = f.email_field :email, :placeholder => "luke@hoth.net", :title => 'registrations new enter_email', :required => true
+
+                .clearfix
+
+                .input-prepend{:title => "username",:data-rel => "tooltip"}
+                  %span#add-on
+                    %i#icon-lock
+                      = f.text_field :username, :placeholder => "username", :title => 'registrations new username', :required => true
+
+                .clearfix
+
+                .input-prepend{:title => "password",:data-rel => "tooltip"}
+                  %span#add-on
+                    %i#icon-lock
+                      = f.password_field :password, :placeholder => "••••••••", :title => 'registrations new enter_password', :required => true, :pattern => "......+" 
+
+                .clearfix
+
+                .input-prepend{:title => "password",:data-rel => "tooltip"}
+                  %span#add-on
+                    %i#icon-lock
+                      = f.password_field :password_confirmation, :placeholder => "••••••••", :title => 'registrations new enter_password_again', :required => true, :pattern => "......+" 
+                = f.submit "注册", :class => "btn btn-primary" 
+            = end 
