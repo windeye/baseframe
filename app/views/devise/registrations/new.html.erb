@@ -1,59 +1,42 @@
-<%= form_for(resource, :as => resource_name, :url => registration_path(resource_name)) do |f| %>
-  <%= devise_error_messages! %>
-
-  <div><%= f.label :email %><br />
-  <%= f.email_field :email, :autofocus => true %></div>
-
-  <div><%= f.label :username %><br />
-  <%= f.text_field :username %></div>
-
-  <div><%= f.label :password %><br />
-  <%= f.password_field :password %></div>
-
-  <div><%= f.label :password_confirmation %><br />
-  <%= f.password_field :password_confirmation %></div>
-
-  <div><%= f.submit "Sign up" %></div>
-<% end %>
-
-<%= render "devise/shared/links" %>
-
 <div id="registration">
   <div class="container">
     <div class="row">
-        <div class="offset3 span6">
-            <h3 id="diaspora-hearts">欢迎加入Nobe-Blog</h3>
+      <div class="offset3 span6">
+        <h3 id="diaspora-hearts">欢迎加入Koala</h3>
 
-            <%= form_for(resource, :validate => true, :url => registration_path(resource_name), :html => {:class => "form-horizontal block-form", :autocomplete => "off"}) do |f| %>
-                <fieldset>
-                  <div class="control-group">
-                    <label class="control-label" for="user_email">邮箱</label>
+        <%= form_for(resource, :as => resource_name, :validate => true, :url => registration_path(resource_name), 
+                       :html => {:class => "form-horizontal block-form", :autocomplete => "off"}) do |f| %>
+          <fieldset>
+            <div class="control-group">
+              <label class="control-label" for="user_email">邮箱</label>
+                <div class="controls">
+                  <%= f.email_field :email, :placeholder => "luke@hoth.net", :title => 'registrations new enter_email', :required => true %>
+                </div>
+            </div>
 
-                    <div class="controls">
-                        <%= f.email_field :email, :placeholder => "luke@hoth.net", :title => t('registrations.new.enter_email'), :required => true %>
-                    </div>
-                  </div>
+            <div class="control-group">
+              <label class="control-label" for="user_email">用户名</label>
+                <div class="controls">
+                  <%= f.text_field :username, :placeholder => "username", :title => 'registrations new username', :required => true %>
+                </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="user_password">密码</label>
+              <div class="controls">
+                <%= f.password_field :password, :placeholder => "••••••••", :title => 'registrations new enter_password', :required => true, :pattern => "......+" %>
+              </div>
+            </div>
 
-                  <div class="control-group">
-                    <label class="control-label" for="user_password">密码</label>
-
-                    <div class="controls">
-                        <%= f.password_field :password, :placeholder => "••••••••", :title => t('registrations.new.enter_password'), :required => true, :pattern => "......+" %>
-                    </div>
-                  </div>
-
-                  <div class="control-group">
-                    <label class="control-label" for="user_password_confirmation">确认密码</label>
-
-                    <div class="controls">
-                        <%= f.password_field :password_confirmation, :placeholder => "••••••••", :title => t('registrations.new.enter_password_again'), :required => true, :pattern => "......+" %>
-                    </div>
-                  </div>
-                </fieldset>
-
-                <%= f.submit "注册", :class => "btn btn-primary" %>
-            <% end %>
-        </div>
+            <div class="control-group">
+              <label class="control-label" for="user_password_confirmation">确认密码</label>
+              <div class="controls">
+                <%= f.password_field :password_confirmation, :placeholder => "••••••••", :title => 'registrations new enter_password_again', :required => true, :pattern => "......+" %>
+              </div>
+            </div>
+          </fieldset>
+              <%= f.submit "注册", :class => "btn btn-primary" %>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>
