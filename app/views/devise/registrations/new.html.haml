@@ -13,30 +13,30 @@
           = form_for(resource, :as => resource_name, :validate => true, :url => registration_path(resource_name), :html => {:class => "form-horizontal"}) do |f|
             %fieldset
               .input-prepend{:title => "email"}
-                %span#add-on
-                  %i#icon-user
-                    = f.email_field :email, :placeholder => "luke@hoth.net", :title => 'registrations new enter_email', :required => true
+                %span.add-on
+                  %i.icon-envelope
+                = f.email_field :email, :placeholder => "luke@hoth.net", :class =>"input-large span10", :title => 'registrations new enter_email', :required => true
 
               .clearfix
 
               .input-prepend{:title => "username"}
-                %span#add-on
-                  %i#icon-lock
-                    = f.text_field :username, :placeholder => "username", :title => 'registrations new username', :required => true
+                %span.add-on
+                  %i.icon-user
+                = f.text_field :username, :placeholder => "username", :class =>"input-large span10", :title => 'registrations new username', :required => true
 
               .clearfix
 
               .input-prepend{:title => "password"}
-                %span#add-on
-                  %i#icon-lock
-                    = f.password_field :password, :placeholder => "••••••••", :title => 'registrations new enter_password', :required => true, :pattern => "......+" 
+                %span.add-on
+                  %i.icon-lock
+                = f.password_field :password, :placeholder => "••••••••", :class =>"input-large span10", :title => 'registrations new enter_password', :required => true, :pattern => "......+" 
 
               .clearfix
 
               .input-prepend{:title => "password"}
-                %span#add-on
-                  %i#icon-lock
-                    = f.password_field :password_confirmation, :placeholder => "••••••••", :title => 'registrations new enter_password_again', :required => true, :pattern => "......+" 
+                %span.add-on
+                  %i.icon-lock
+                = f.password_field :password_confirmation, :placeholder => "••••••••", :class =>"input-large span10", :title => 'registrations new enter_password_again', :required => true, :pattern => "......+" 
 
               .clearfix
               .center.span5
