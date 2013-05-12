@@ -14,13 +14,13 @@
     = javascript_include_tag "application"
 
     %title
-      =page_title yield(:page_title)
+      = yield(:page_title)
 
     = yield(:head)
     = csrf_meta_tag
 
   %body
-    =flash_messages
+    = flash_messages
 
     = yield :before_content
 
