@@ -1,5 +1,4 @@
 class Stream::Multi < Stream::Base
-
   # @return [String] URL
   def link(opts)
     Rails.application.routes.url_helpers.stream_path(opts)
@@ -45,12 +44,6 @@ class Stream::Multi < Stream::Base
       tag_string = self.user.followed_tags.map{|t| "##{t.name}"}.to_sentence
       prefill << I18n.t("shared.publisher.new_user_prefill.i_like", :tags => tag_string)
     end
-
-    if inviter = self.user.invited_by.try(:person)
-      prefill << I18n.t("shared.publisher.new_user_prefill.invited_by")
-      prefill << "@{#{inviter.name} ; #{inviter.diaspora_handle}}!"
-    end
-
     prefill
   end
 

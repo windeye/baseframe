@@ -1,7 +1,3 @@
-#   Copyright (c) 2010-2011, Diaspora Inc.  This file is
-#   licensed under the Affero General Public License version 3 or later.  See
-#   the COPYRIGHT file.
-
 class StreamsController < ApplicationController
   before_filter :authenticate_user!
   before_filter :save_selected_aspects, :only => :aspects
@@ -22,9 +18,9 @@ class StreamsController < ApplicationController
     stream_responder(Stream::Public)
   end
 
-  def activity
-    stream_responder(Stream::Activity)
-  end
+  #def activity
+  #  stream_responder(Stream::Activity)
+  #end
 
   def multi
       stream_responder(Stream::Multi)

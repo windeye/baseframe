@@ -7,7 +7,7 @@ class CreateSchema < ActiveRecord::Migration
     create_table :aspects do |t|
       t.string :name
       t.integer :user_id
-      t.integer :oreder_id
+      t.integer :order_id
       t.boolean :contacts_visible, :default => false, :null => false
       t.timestamps
     end

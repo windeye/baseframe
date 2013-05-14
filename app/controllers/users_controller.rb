@@ -1,7 +1,3 @@
-#   Copyright (c) 2010-2011, Diaspora Inc.  This file is
-#   licensed under the Affero General Public License version 3 or later.  See
-#   the COPYRIGHT file.
-
 class UsersController < ApplicationController
   before_filter :authenticate_user!, :except => [:new, :create, :public, :user_photo]
 
@@ -115,10 +111,10 @@ class UsersController < ApplicationController
     @person   = @user.person
     @profile  = @user.profile
 
-    @css_framework = :bootstrap
-    @include_application_css = true #Hack for multiple CSS frameworks and having two main styles
+    #@css_framework = :bootstrap
+    #@include_application_css = true #Hack for multiple CSS frameworks and having two main styles
     respond_to do |format|
-    format.mobile { render "users/getting_started" }
+    #format.mobile { render "users/getting_started" }
     format.all { render "users/getting_started", layout: "with_header_with_footer" }
     end
   end
