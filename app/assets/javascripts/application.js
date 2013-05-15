@@ -1,16 +1,44 @@
-// This is a manifest file that'll be compiled into application.js, which will include all the files
-// listed below.
-//
-// Any JavaScript/Coffee file within this directory, lib/assets/javascripts, vendor/assets/javascripts,
-// or vendor/assets/javascripts of plugins, if any, can be referenced here using a relative path.
-//
-// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
-// the compiled file.
-//
-// WARNING: THE FIRST BLANK LINE MARKS THE END OF WHAT'S TO BE PROCESSED, ANY BLANK LINE SHOULD
-// GO AFTER THE REQUIRES BELOW.
-//
-//= require jquery
-//= require jquery_ujs
-//= require_tree .
-//= require bootstrap
+/*   Copyright (c) 2010-2011, Diaspora Inc.  This file is
+ *   licensed under the Affero General Public License version 3 or later.  See
+ *   the COPYRIGHT file.
+ *   require jquery.remotipart
+ */
+//= require underscore
+//= require backbone
+//= require rails.validations
+//= require jquery.hotkeys
+//= require jquery.autoresize
+//= require jquery-ui-1.8.9.custom.min
+//= require jquery.charcount
+//= require jquery.placeholder
+//= require timeago
+//= require facebox
+//= require jquery.events.input
+//= require jquery.elastic
+//= require jquery.mentionsInput
+//= require jquery.idle-timer
+//= require jquery.infinitescroll-custom
+//= require jquery.autocomplete-custom
+//= require keycodes
+//= require fileuploader-custom
+//= require handlebars-1.0.0.beta.6
+//= require markdown
+//= require punycode
+//= require parse_url
+//= require clear-form
+//= require validation
+//= require app/app
+//= require diaspora
+//= require_tree ./helpers
+//= require_tree ./pages
+//= require_tree ./widgets
+//= require view
+//= require aspects-dropdown
+//= require contact-edit
+//= require contact-list
+//= require aspect-sorting
+//= require mentions
+//= require bootstrap-tooltip
+//= require bootstrap-popover
+//= require bootstrap-dropdown
+//= require bootstrap-scrollspy-custom

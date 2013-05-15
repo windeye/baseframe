@@ -18,10 +18,6 @@ class StreamsController < ApplicationController
     stream_responder(Stream::Public)
   end
 
-  #def activity
-  #  stream_responder(Stream::Activity)
-  #end
-
   def multi
       stream_responder(Stream::Multi)
   end

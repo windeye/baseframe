@@ -63,6 +63,27 @@ module Testtable
     # Enable the asset pipeline
     config.assets.enabled = true
 
+    config.assets.initialize_on_precompile = false
+
+    # Precompile additional assets (application.js, application.css, and all non-JS/CSS are already added)
+    # Javascripts
+    config.assets.precompile += [ "aspect-contacts.js", "contact-list.js", "finder.js",
+    "home.js", "ie.js", "inbox.js", "jquery.js", "jquery_ujs.js", "jquery.textchange.js",
+    "login.js", "mailchimp.js", "main.js", "mobile.js", "profile.js", "people.js", "photos.js",
+    "profile.js", "publisher.js", "templates.js", "validation.js" ]
+
+    # Stylesheets
+    config.assets.precompile += [ "blueprint.css", "bootstrap.css", "bootstrap-complete.css",
+    "bootstrap-responsive.css", "default.css", "error_pages.css", "login.css", "mobile.css",
+    "new-templates.css", "rtl.css" ]
+
+    # Rails Admin - these assets need to be added here since the Engine initializer
+    # doesn't run with initialize_on_precompile disabled. This list is taken
+    # directly from the Rails Admin Engine initializer.
+    config.assets.precompile += ['rails_admin/rails_admin.js', 'rails_admin/rails_admin.css',
+    'rails_admin/jquery.colorpicker.js', 'rails_admin/jquery.colorpicker.css']
+
+
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 

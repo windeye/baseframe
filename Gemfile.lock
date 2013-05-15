@@ -76,6 +76,10 @@ GEM
       json
     haml (4.0.1)
       tilt
+    handlebars_assets (0.12.0)
+      execjs (>= 1.2.9)
+      sprockets (>= 2.0.3)
+      tilt
     hike (1.2.2)
     i18n (0.6.1)
     journey (1.0.4)
@@ -197,6 +201,7 @@ DEPENDENCIES
   foreigner (= 1.4.0)
   gon (= 4.0.2)
   haml (= 4.0.1)
+  handlebars_assets (= 0.12.0)
   jquery-rails
   json (= 1.7.7)
   markerb (= 1.0.1)
